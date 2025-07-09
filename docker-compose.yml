@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: meeting-bot-db
+    environment:
+      POSTGRES_DB: meeting_bot_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: meeting-bot-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  web:
+    build: .
+    container_name: meeting-bot-web
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/meeting_bot_db
+      - REDIS_URL=redis://redis:6379/0
+      - ATTENDEE_API_KEY=${ATTENDEE_API_KEY}
+      - ATTENDEE_API_BASE_URL=${ATTENDEE_API_BASE_URL:-https://app.attendee.dev}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - DEBUG=${DEBUG:-false}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - WEBHOOK_BASE_URL=${WEBHOOK_BASE_URL}
+      - NGROK_AUTH_TOKEN=${NGROK_AUTH_TOKEN}
+      - AUTO_START_NGROK=${AUTO_START_NGROK:-true}
+      - NGROK_SUBDOMAIN=${NGROK_SUBDOMAIN}
+      - NGROK_PORT=${NGROK_PORT:-8000}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+    restart: unless-stopped
+    command: >
+      sh -c "
+        echo 'Waiting for database to be ready...' &&
+        sleep 10 &&
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+volumes:
+  postgres_data:
+  redis_data:
+ 
