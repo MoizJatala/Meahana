@@ -499,3 +499,13 @@ webhook_events.json
 bot_logs/
 meeting_data/
 analysis_cache/ .env*
+
+.env.production
+.env.staging
+.env.development
+.env.local
+.env.development.local
+.env.test.local
+.env.test
+.env.production.local
+.env.staging.local
