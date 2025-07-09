@@ -498,4 +498,4 @@ __pycache__/
 webhook_events.json
 bot_logs/
 meeting_data/
-analysis_cache/ 
+analysis_cache/ .env*
