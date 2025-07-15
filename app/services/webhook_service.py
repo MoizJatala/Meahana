@@ -106,7 +106,9 @@ class WebhookService:
             return
         
         # Get the bot state from payload data
-        state = payload.data.get("state", "unknown")
+        state = payload.data.get("new_state", "unknown")
+        logger.info("--------------------------------")
+        logger.info(payload.data)
         logger.info(f"Bot {bot_id} state changed to: {state}")
         
         # Find the meeting by bot_id
@@ -116,13 +118,17 @@ class WebhookService:
             return
         
         # Update meeting status based on bot state
-        if state in ["joining", "joined"]:
+        if state in ["staged", "join_requested", "joining", "joined_meeting", "joined_recording", "recording_permission_granted"]:
             await BotService.update_meeting_status(db, meeting, "started")
             logger.info(f"Updated meeting {meeting.id} status to 'started'")
-        elif state in ["recording"]:
-            await BotService.update_meeting_status(db, meeting, "started")
-            logger.info(f"Bot {bot_id} started recording")
-
+        elif state in ["ended", "left_meeting", "post_processing_completed"]:
+            await BotService.update_meeting_status(db, meeting, "completed")
+            logger.info(f"Updated meeting {meeting.id} status to 'completed'")
+        elif state in ["failed"]:
+            await BotService.update_meeting_status(db, meeting, "failed")
+            logger.info(f"Updated meeting {meeting.id} status to 'failed'")
+        else:
+            logger.info(f"Bot {bot_id} state '{state}' not mapped to internal status")
     @staticmethod
     async def _handle_bot_recording(payload: WebhookPayload, db: AsyncSession):
         """Handle bot recording events"""
@@ -185,8 +191,10 @@ class WebhookService:
         
         # Extract transcript data
         data = payload.data
-        speaker = data.get("speaker", "Unknown")
-        text = data.get("text", "")
+        logger.info(data)
+        speaker = data.get("speaker") or data.get("speaker_name", "Unknown")
+        text = data.get("text") or (data.get("transcription", {}) or {}).get("transcript", "")
+        timestamp_ms = data.get("timestamp_ms")
         timestamp_str = data.get("timestamp")
         confidence = data.get("confidence", "medium")
         

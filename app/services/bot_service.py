@@ -113,8 +113,11 @@ class BotService:
                         headers=headers,
                         timeout=30.0
                     )
-                    response.raise_for_status()
-                    
+                    try:
+                        response.raise_for_status()
+                    except httpx.HTTPStatusError as e:
+                        logger.error(f"Error response from Attendee API: {response.text}")
+                        raise
                     data = response.json()
                     logger.info(f"📥 Received response from Attendee API: {json.dumps(data, indent=2)}")
                     
