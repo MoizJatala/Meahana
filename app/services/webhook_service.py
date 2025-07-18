@@ -124,6 +124,14 @@ class WebhookService:
         elif state in ["ended", "left_meeting", "post_processing_completed"]:
             await BotService.update_meeting_status(db, meeting, "completed")
             logger.info(f"Updated meeting {meeting.id} status to 'completed'")
+            
+            # Trigger transcript fetch and analysis in background
+            background_tasks.add_task(
+                WebhookService._fetch_transcript_and_analyze,
+                meeting.id,
+                bot_id
+            )
+            logger.info(f"Scheduled background analysis for meeting {meeting.id}")
         elif state in ["failed"]:
             await BotService.update_meeting_status(db, meeting, "failed")
             logger.info(f"Updated meeting {meeting.id} status to 'failed'")

@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Configure OpenAI
-openai.api_key = settings.openai_api_key
+client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
 
 
 class AnalysisService:
@@ -84,7 +84,7 @@ class AnalysisService:
         
         try:
             # Use OpenAI ChatCompletion API
-            response = await openai.ChatCompletion.acreate(
+            response = await client.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {
