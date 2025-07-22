@@ -22,7 +22,7 @@ class BotService:
         """Insert a new meeting with pending status"""
         meeting = Meeting(
             meeting_url=meeting_data.meeting_url,
-            status="pending",
+            status=MeetingStatus.PENDING,
             meeting_metadata={
                 "bot_name": meeting_data.bot_name,
                 "join_at": meeting_data.join_at.isoformat() if meeting_data.join_at else None,
@@ -67,7 +67,7 @@ class BotService:
                     payload = {
                         "meeting_url": meeting_url,
                         "bot_name": bot_name,
-                        "recording_config": {
+                        "recording_settings": {
                             "transcript": True,
                             "video": True,
                             "audio": True
@@ -161,7 +161,7 @@ class BotService:
     ) -> Meeting:
         """Update meeting with bot_id and change status to started"""
         meeting.bot_id = bot_id
-        meeting.status = "started"
+        meeting.status = MeetingStatus.STARTED
         meeting.meeting_metadata = {**meeting.meeting_metadata, "bot_id": bot_id}
         
         await db.commit()

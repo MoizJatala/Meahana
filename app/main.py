@@ -33,9 +33,9 @@ app.add_middleware(
 
 # Include routers
 app.include_router(bots.router)
-app.include_router(webhooks.router)
+app.include_router(webhooks.router, include_in_schema=False)  # Hide from Swagger
 app.include_router(reports.router)
-app.include_router(ngrok.router)
+app.include_router(ngrok.router, include_in_schema=False)  # Hide from Swagger
 
 
 @app.on_event("startup")

@@ -88,6 +88,31 @@ class WebhookPayload(BaseModel):
         return self.bot_id or self.data.get("bot_id")
 
 
+class MeetingWithTranscripts(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    meeting_url: str
+    bot_id: Optional[str] = None
+    status: MeetingStatus
+    meeting_metadata: Dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime
+    updated_at: datetime
+    transcript_chunks: List[TranscriptChunkSchema] = Field(default_factory=list)
+
+
+class MeetingReportResponse(BaseModel):
+    """Response for meeting reports only"""
+    meeting_id: int
+    meeting_url: str
+    bot_id: Optional[str] = None
+    status: MeetingStatus
+    reports: List[ReportSchema] = Field(default_factory=list)
+    message: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+
 class MeetingWithReport(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     

@@ -5,6 +5,8 @@ from .schemas import (
     ReportSchema,
     WebhookPayload,
     MeetingWithReport,
+    MeetingWithTranscripts,
+    MeetingReportResponse,
 )
 
 __all__ = [
@@ -14,4 +16,6 @@ __all__ = [
     "ReportSchema",
     "WebhookPayload",
     "MeetingWithReport",
+    "MeetingWithTranscripts",
+    "MeetingReportResponse",
 ] 
